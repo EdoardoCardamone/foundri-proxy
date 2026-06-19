@@ -228,6 +228,29 @@ app.post('/chat', async (req, res) => {
   }
 });
 
+// ─── Endpoint usato dalla versione attuale del frontend (index-2.html) ──
+// L'app manda richieste già formattate in stile Anthropic — qui le passiamo
+// dirette all'API, senza dover ricostruire context/sessionId come per /chat.
+app.post('/v1/messages', async (req, res) => {
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify(req.body)
+    });
+
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (error) {
+    console.error('Errore proxy /v1/messages:', error.message);
+    res.status(500).json({ error: 'Errore del server. Riprova tra poco.' });
+  }
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'Foundri AI Proxy' });
 });
