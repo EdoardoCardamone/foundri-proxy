@@ -386,6 +386,11 @@ app.post('/send-email', async (req, res) => {
     return res.status(400).json({ error: 'Tipo email non valido.' });
   }
 
+  // Resend non configurato — email disabilitate finché non si aggiunge la API key
+  if (!resend) {
+    console.log('Email non inviata (Resend non configurato):', toEmail, subject);
+    return res.json({ ok: true, note: 'Email simulata - Resend non configurato' });
+  }
   try {
     await resend.emails.send({
       from: 'Foundri <onboarding@resend.dev>',
